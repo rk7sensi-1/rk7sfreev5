@@ -1,564 +1,308 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minecraft</title>
-<link rel="icon" href="icone.png">
-<link rel="apple-touch-icon" href="icone.png">
-<link rel="icon" sizes="192x192" href="icone.png">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Minecraft">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-512.png">
+<title>Minecraft</title>
 
 <style>
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-        background: linear-gradient(135deg, #000000 0%, #1a0000 100%);
-        color: #fff;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-    }
+:root{
+  --red:#ff002f;
+  --dark:#050006;
+  --card:#0c0008;
+  --border:#300012;
+}
+*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{
+  margin:0;
+  background:black;
+  color:white;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+canvas{position:fixed;inset:0;z-index:-1}
 
-    #holograma {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
-    }
+/* LOGIN */
+#loginBox{
+  width:320px;
+  padding:24px;
+  background:rgba(5,0,6,.92);
+  border:1px solid var(--border);
+  border-radius:22px;
+  text-align:center;
+  box-shadow:0 0 30px rgba(255,0,47,.5);
+}
+#loginBox h2{color:var(--red);letter-spacing:2px}
+#loginBox input{
+  width:100%;padding:14px;
+  border-radius:14px;border:none;margin:14px 0;
+}
+#loginBox button{
+  width:100%;padding:14px;
+  background:var(--red);
+  border:none;border-radius:16px;
+  color:white;font-weight:bold;
+}
 
-    .glass-container {
-        position: relative;
-        z-index: 1;
-        width: 85%;
-        max-width: 380px;
-        background: rgba(0, 0, 0, 0.85);
-        border: 2px solid #ff0000;
-        box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
-        border-radius: 24px;
-        padding: 25px;
-        backdrop-filter: blur(10px);
-        display: flex;
-        flex-direction: column;
-    }
+/* PANEL */
+#panel{
+  display:none;
+  width:340px;
+  background:rgba(5,0,6,.95);
+  border-radius:24px;
+  border:1px solid var(--border);
+  box-shadow:0 0 35px rgba(255,0,47,.45);
+}
+.header{
+  text-align:center;
+  padding:14px;
+  border-bottom:1px solid var(--border);
+}
+.header b{color:var(--red);letter-spacing:2px}
 
-    .height-painel { height: auto; max-height: 90vh; overflow-y: auto; }
-    .height-login { height: auto; text-align: center; }
+/* TABS */
+.tabs{display:flex}
+.tabs button{
+  flex:1;padding:12px 0;
+  background:none;border:none;color:#aaa;
+}
+.tabs button.active{
+  color:var(--red);
+  border-bottom:2px solid var(--red);
+}
 
-    .title {
-        text-align: center;
-        font-size: 22px;
-        font-weight: bold;
-        margin-bottom: 25px;
-        color: #ff0000;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-    }
+/* CARD */
+.card{padding:16px}
+.card h3{margin:0;color:var(--red)}
+.card p{font-size:12px;color:#aaa}
 
-    .img-perfil {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        margin: 0 auto 20px;
-        display: block;
-        border: 3px solid #ff0000;
-        box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
-        object-fit: cover;
-        background: #000;
-    }
+/* OPTIONS */
+.option{
+  display:flex;justify-content:space-between;
+  align-items:center;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:12px;margin-top:10px;
+}
+.option-info{display:flex;gap:10px;align-items:center}
+.option svg{width:22px;height:22px;stroke:var(--red)}
+.toggle{
+  width:42px;height:22px;
+  background:#200010;border-radius:20px;position:relative;
+}
+.toggle::before{
+  content:"";width:18px;height:18px;
+  background:#666;border-radius:50%;
+  position:absolute;top:2px;left:2px;transition:.3s;
+}
+.option.active .toggle{
+  background:rgba(255,0,47,.6);
+  box-shadow:0 0 12px rgba(255,0,47,.8);
+}
+.option.active .toggle::before{
+  left:22px;background:var(--red);
+}
 
-    .card {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
-        border: 1px solid #ff0000;
-        border-radius: 16px;
-        padding: 12px;
-        margin-bottom: 12px;
-        transition: all 0.3s ease;
-    }
-
-    .card:hover {
-        box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
-        border-color: #ff3333;
-    }
-
-    .card-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .card-icon {
-        width: 45px;
-        height: 45px;
-        background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-        border-radius: 12px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
-        font-size: 24px;
-    }
-
-    .card-icon img {
-        width: 70%;
-        height: 70%;
-        object-fit: contain;
-    }
-
-    .card-text h3 { 
-        margin: 0; 
-        font-size: 16px; 
-        color: #ffffff; 
-        font-weight: bold;
-    }
-    .card-text p { 
-        margin: 2px 0 0; 
-        font-size: 11px; 
-        color: #cccccc; 
-    }
-
-    .switch { position: relative; width: 50px; height: 26px; }
-    .switch input { display: none; }
-    .slider {
-        position: absolute; 
-        cursor: pointer; 
-        background: #333;
-        border-radius: 30px; 
-        top: 0; 
-        left: 0; 
-        right: 0; 
-        bottom: 0; 
-        transition: .3s;
-        border: 1px solid #555;
-    }
-    .slider:before {
-        content: ""; 
-        position: absolute; 
-        width: 20px; 
-        height: 20px;
-        background: #ffffff; 
-        border-radius: 50%; 
-        top: 3px; 
-        left: 3px; 
-        transition: .3s;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-    input:checked + .slider { 
-        background: #ff0000; 
-        border-color: #ff0000;
-    }
-    input:checked + .slider:before { 
-        transform: translateX(24px); 
-    }
-
-    .inject-btn {
-        width: 100%;
-        padding: 16px;
-        margin-top: 15px;
-        background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-        border: 2px solid #ff0000;
-        border-radius: 16px;
-        color: #ffffff;
-        font-weight: bold;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        text-transform: uppercase;
-        font-size: 15px;
-        letter-spacing: 1px;
-        box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
-        transition: all 0.3s ease;
-        box-sizing: border-box;
-    }
-
-    .inject-btn:hover {
-        box-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
-        transform: translateY(-2px);
-    }
-
-    .inject-bar {
-        position: absolute; 
-        left: 0; 
-        bottom: 0; 
-        height: 4px; 
-        width: 0%; 
-        background: #ffffff;
-        box-shadow: 0 0 10px #ffffff;
-    }
-
-    input[type="text"] {
-        width: 100%; 
-        padding: 14px; 
-        background: rgba(0, 0, 0, 0.7); 
-        border: 2px solid #ff0000; 
-        border-radius: 16px; 
-        color: #fff; 
-        margin-bottom: 20px; 
-        text-align: center;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        box-sizing: border-box;
-    }
-
-    input[type="text"]:focus {
-        outline: none;
-        box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
-    }
-
-    .login-btn {
-        width: 100%; 
-        padding: 15px; 
-        background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%); 
-        color: #fff; 
-        border: 2px solid #ff0000; 
-        border-radius: 16px; 
-        font-weight: bold; 
-        cursor: pointer;
-        font-size: 15px;
-        letter-spacing: 1px;
-        box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
-        transition: all 0.3s ease;
-        box-sizing: border-box;
-    }
-
-    .login-btn:hover {
-        box-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
-        transform: translateY(-2px);
-    }
-
-    .login-label {
-        margin-bottom: 10px; 
-        font-size: 14px; 
-        color: #cccccc;
-    }
+.action{
+  width:100%;padding:14px;margin-top:14px;
+  border:none;border-radius:18px;
+  background:var(--red);color:white;font-weight:bold;
+}
+.tab{display:none}
+.tab.active{display:block}
 </style>
 </head>
 <body>
 
-<canvas id="holograma" width="390" height="844"></canvas>
+<canvas id="bg"></canvas>
 
-<div class="glass-container height-login" id="tela-login" style="display: flex;">
-    <div class="logo">
-        <img src="logo.png" alt="Logo" class="img-perfil">
-    </div>
-    <div class="login-label">coloca a key de acesso</div>
-    <input type="text" id="key-input" placeholder="insira a key...">
-    <button class="login-btn" onclick="entrar()">LOGAR</button>
+<!-- LOGIN -->
+<div id="loginBox">
+  <h2>RK7S EXTERNAL</h2>
+  <input id="password" type="password" placeholder="Senha">
+  <button onclick="doLogin()">ENTRAR</button>
 </div>
 
-<div class="glass-container height-painel" id="tela-painel" style="display: none;">
-    <div class="title">PAINEL RK7S V4</div>
+<!-- PANEL -->
+<div id="panel">
+  <div class="header"><b>RK7S EXTERNAL</b></div>
 
-    <div class="card">
-        <div class="card-info">
-            <div class="card-icon">🎯</div>
-            <div class="card-text"><h3>aimbot legit</h3><p>Melhora o alinhamento da mira.</p></div>
-        </div>
-        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+  <div class="tabs">
+    <button class="active" onclick="openTab(0)">Funções</button>
+    <button onclick="openTab(1)">Abrir Jogo</button>
+    <button onclick="openTab(2)">Informações</button>
+  </div>
+
+  <!-- FUNÇÕES -->
+  <div class="card tab active">
+    <h3>Controle de Mira</h3>
+    <p>Configuração interna</p>
+
+    <div class="option" onclick="toggleOpt(this,0)">
+      <div class="option-info">
+        <svg fill="none" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20" stroke-width="2"/></svg>
+        <div><b>Controle de Recoil</b><br><small>Redução dinâmica</small></div>
+      </div>
+      <div class="toggle"></div>
     </div>
 
-    <div class="card">
-        <div class="card-info">
-            <div class="card-icon">⚡</div>
-            <div class="card-text"><h3>reduzir lags</h3><p>Remove os lags do jogo.</p></div>
-        </div>
-        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+    <div class="option" onclick="toggleOpt(this,1)">
+      <div class="option-info">
+        <svg fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" stroke-width="2"/></svg>
+        <div><b>Aimbot Legit</b><br><small>Rastreio suave</small></div>
+      </div>
+      <div class="toggle"></div>
     </div>
 
-    <div class="card">
-        <div class="card-info">
-            <div class="card-icon">📊</div>
-            <div class="card-text"><h3>melhorar gráficos</h3><p>Melhore seu gráfico em até 10%.</p></div>
-        </div>
-        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+    <div class="option" onclick="toggleOpt(this,2)">
+      <div class="option-info">
+        <svg fill="none" viewBox="0 0 24 24"><path d="M6 2h12v20H6z" stroke-width="2"/></svg>
+        <div><b>Precisão Absoluta</b><br><small>Ajuste fino</small></div>
+      </div>
+      <div class="toggle"></div>
     </div>
+  </div>
 
-    <div class="card">
-        <div class="card-info">
-            <div class="card-icon">🚀</div>
-            <div class="card-text"><h3>aumentar desempenho</h3><p>Otimização máxima de FPS.</p></div>
-        </div>
-        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
-    </div>
+  <!-- JOGO -->
+  <div class="card tab">
+    <h3>Abrir Free Fire</h3>
+    <button class="action" onclick="location.href='intent://#Intent;package=com.dts.freefireth;scheme=freefire;end'">FREE FIRE</button>
+    <button class="action" onclick="location.href='intent://#Intent;package=com.dts.freefiremax;scheme=freefiremax;end'">FREE FIRE MAX</button>
+  </div>
 
-    <button class="inject-btn" onclick="injetarArquivos()">
-        ABRIR FREE FIRE
-        <div class="inject-bar" id="injectBar"></div>
-    </button>
+  <!-- INFO -->
+  <div class="card tab">
+    <h3>Informações</h3>
+    <button class="action" onclick="location.href='https://wa.me/5524999880538'">SUPORTE</button>
+  </div>
 </div>
 
 <script>
-    // ==============================
-    // SISTEMA DE MODULOS OCULTOS
-    // ==============================
-    
-    const ModulosPrecisao = {
-        // Configuracoes
-        config: {
-            sensi: 1.0,
-            smoothing: 0.12,
-            deadzone: 0.4,
-            magnetForce: 0.08,
-            headLineY: 0.0,
-            maxUp: 1.2,
-            maxDown: 0.6,
-            FPS_LIMIT: 60
-        },
-        
-        // Estado
-        estado: {
-            miraAtual: {x: 0, y: 0},
-            aimbot: false,
-            reduzirLags: false,
-            melhorarGraficos: false,
-            aumentarDesempenho: false
-        },
-        
-        // Assistencia de Mira
-        assistenciaMira: function(toque) {
-            if (!this.estado.aimbot) return toque;
-            
-            let cfg = this.config;
-            let mira = this.estado.miraAtual;
-            
-            // Deadzone (anti tremida)
-            if (Math.abs(toque.x) < cfg.deadzone) toque.x = 0;
-            if (Math.abs(toque.y) < cfg.deadzone) toque.y = 0;
-            
-            // Sensibilidade
-            let alvo = {
-                x: toque.x * cfg.sensi,
-                y: toque.y * cfg.sensi
-            };
-            
-            // Suavizacao
-            mira.x += (alvo.x - mira.x) * cfg.smoothing;
-            mira.y += (alvo.y - mira.y) * cfg.smoothing;
-            
-            // Magnetismo
-            let diff = cfg.headLineY - mira.y;
-            mira.y += diff * cfg.magnetForce;
-            
-            // Trava vertical
-            mira.y = Math.max(cfg.headLineY - cfg.maxDown, Math.min(mira.y, cfg.headLineY + cfg.maxUp));
-            
-            return mira;
-        },
-        
-        // Otimizacao de FPS
-        limitadorFPS: null,
-        iniciarLimitadorFPS: function() {
-            if (this.limitadorFPS) return;
-            this.limitadorFPS = setInterval(() => {
-                if (this.estado.aumentarDesempenho) {
-                    requestAnimationFrame(() => {});
-                }
-            }, 1000 / this.config.FPS_LIMIT);
-        },
-        
-        pararLimitadorFPS: function() {
-            if (this.limitadorFPS) {
-                clearInterval(this.limitadorFPS);
-                this.limitadorFPS = null;
-            }
-        },
-        
-        // Graficos
-        graficos: {
-            shadowQuality: 2,
-            antiAliasing: 2,
-            motionBlur: true,
-            vSync: true
-        },
-        
-        ajustarGraficos: function(ativar) {
-            if (ativar) {
-                this.graficos.shadowQuality = 1;
-                this.graficos.antiAliasing = 1;
-                this.graficos.motionBlur = false;
-                this.graficos.vSync = false;
-                console.log('[GRAFICOS] Otimizados: +10% performance');
-            } else {
-                this.graficos.shadowQuality = 2;
-                this.graficos.antiAliasing = 2;
-                this.graficos.motionBlur = true;
-                this.graficos.vSync = true;
-            }
-        },
-        
-        // Reducao de Lag
-        reducaoLag: {
-            intervalo: null,
-            iniciar: function() {
-                this.intervalo = setInterval(() => {
-                    // Limpa cache e otimiza memoria
-                    if (typeof gc === 'function') gc();
-                }, 5000);
-                console.log('[LAG] Reducao ativada');
-            },
-            parar: function() {
-                if (this.intervalo) {
-                    clearInterval(this.intervalo);
-                    this.intervalo = null;
-                }
-            }
-        }
+/* SERVICE WORKER REGISTRATION */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js')
+    .then(reg => console.log('SW registered'))
+    .catch(err => console.log('SW error:', err));
+}
+
+/* LOGIN */
+function doLogin(){
+  if(password.value==="Rk7sV5"){
+    loginBox.style.display="none";
+    panel.style.display="block";
+  }
+}
+function openTab(i){
+  document.querySelectorAll(".tabs button").forEach((b,n)=>b.classList.toggle("active",n===i));
+  document.querySelectorAll(".tab").forEach((t,n)=>t.classList.toggle("active",n===i));
+}
+function toggleOpt(el,i){
+  el.classList.toggle("active");
+}
+
+/* ============================
+   PATH: /assets/js/engine.js
+   ENGINE EMBUTIDA 
+============================ */
+class AimEngine {
+  constructor(config = {}) {
+    this.cfg = {
+      recoilStrength: config.recoilStrength ?? 0.25,
+      recoilRecover: config.recoilRecover ?? 0.05,
+      aimSmooth: config.aimSmooth ?? 0.08,
+      trackingSpeed: config.trackingSpeed ?? 0.12,
+      damping: config.damping ?? 0.85,
+      deadzone: config.deadzone ?? 0.6,
+      precision: config.precision ?? 0.998
     };
-    
-    // ==============================
-    // INTERFACE DO USUARIO
-    // ==============================
-    
-    function entrar() {
-        var key = document.getElementById("key-input").value;
-        if (key === "Rk7sV4") {
-            document.getElementById("tela-login").style.display = "none";
-            document.getElementById("tela-painel").style.display = "flex";
-        } else { alert("ERRO: Key incorreta!"); }
+
+    this.recoil = 0;
+    this.filteredAim = { x: 0, y: 0 };
+  }
+
+  recoilUpdate(shooting) {
+    if (shooting) {
+      this.recoil += this.cfg.recoilStrength * (1 - this.recoil * 0.15);
+    } else {
+      this.recoil *= (1 - this.cfg.recoilRecover);
     }
 
-    function injetarArquivos() {
-        const btn = document.querySelector('.inject-btn');
-        const bar = document.getElementById('injectBar');
-        btn.firstChild.textContent = 'INJETANDO ARQUIVOS...';
-        
-        // Mostrar modulos ativos
-        let modulosAtivos = [];
-        if (ModulosPrecisao.estado.aimbot) modulosAtivos.push('AIMBOT');
-        if (ModulosPrecisao.estado.reduzirLags) modulosAtivos.push('ANTI-LAG');
-        if (ModulosPrecisao.estado.melhorarGraficos) modulosAtivos.push('GRAFICOS+');
-        if (ModulosPrecisao.estado.aumentarDesempenho) modulosAtivos.push('FPS++');
-        
-        if (modulosAtivos.length > 0) {
-            console.log('[INJECT] Modulos ativos:', modulosAtivos.join(', '));
-        }
-        
-        let progresso = 0;
-        const intervalo = setInterval(() => {
-            progresso += 3.33;
-            bar.style.width = progresso + '%';
-            if (progresso >= 100) {
-                clearInterval(intervalo);
-                window.location.href = 'freefire://';
-            }
-        }, 100);
-    }
-    
-    // ==============================
-    // LISTENERS DOS TOGGLES
-    // ==============================
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggles = document.querySelectorAll('.switch input[type="checkbox"]');
-        
-        toggles[0].addEventListener('change', function() {
-            ModulosPrecisao.estado.aimbot = this.checked;
-            if (this.checked) {
-                console.log('[AIMBOT] Ativado - Precisao +85%');
-            } else {
-                console.log('[AIMBOT] Desativado');
-            }
-        });
-        
-        toggles[1].addEventListener('change', function() {
-            ModulosPrecisao.estado.reduzirLags = this.checked;
-            if (this.checked) {
-                ModulosPrecisao.reducaoLag.iniciar();
-            } else {
-                ModulosPrecisao.reducaoLag.parar();
-            }
-        });
-        
-        toggles[2].addEventListener('change', function() {
-            ModulosPrecisao.estado.melhorarGraficos = this.checked;
-            ModulosPrecisao.ajustarGraficos(this.checked);
-        });
-        
-        toggles[3].addEventListener('change', function() {
-            ModulosPrecisao.estado.aumentarDesempenho = this.checked;
-            if (this.checked) {
-                ModulosPrecisao.iniciarLimitadorFPS();
-                console.log('[FPS] Otimizacao ativada - Limite: ' + ModulosPrecisao.config.FPS_LIMIT);
-            } else {
-                ModulosPrecisao.pararLimitadorFPS();
-            }
-        });
+    if (this.recoil < 0.001) this.recoil = 0;
+  }
+
+  deadzone(delta) {
+    return Math.abs(delta) < this.cfg.deadzone ? 0 : delta;
+  }
+
+  ema(current, target) {
+    return {
+      x: current.x + (target.x - current.x) * this.cfg.aimSmooth,
+      y: current.y + (target.y - current.y) * this.cfg.aimSmooth
+    };
+  }
+
+  update(currentAim, target, shooting = false) {
+    this.recoilUpdate(shooting);
+
+    let dx = target.x - currentAim.x;
+    let dy = target.y - currentAim.y;
+
+    dx = this.deadzone(dx);
+    dy = this.deadzone(dy);
+
+    const distance = Math.hypot(dx, dy) || 1;
+    const slowDown = Math.min(1, distance / 120);
+
+    const nextAim = {
+      x: currentAim.x + dx * this.cfg.trackingSpeed * slowDown,
+      y: currentAim.y + dy * this.cfg.trackingSpeed * slowDown
+    };
+
+    this.filteredAim = this.ema(this.filteredAim, nextAim);
+
+    return {
+      x: this.filteredAim.x * this.cfg.precision,
+      y: (this.filteredAim.y - this.recoil) * this.cfg.precision
+    };
+  }
+}
+
+window.AimEngine = AimEngine;
+
+/* GALÁXIA */
+const c=document.getElementById("bg"),ctx=c.getContext("2d");
+let w,h,p=[];
+function rs(){w=c.width=innerWidth;h=c.height=innerHeight}
+rs();onresize=rs;
+for(let i=0;i<70;i++)p.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5),vy:(Math.random()-.5)});
+(function anim(){
+  ctx.clearRect(0,0,w,h);
+  p.forEach(a=>{
+    a.x+=a.vx;a.y+=a.vy;
+    if(a.x<0||a.x>w)a.vx*=-1;
+    if(a.y<0||a.y>h)a.vy*=-1;
+    ctx.fillStyle="#ff002f";
+    ctx.fillRect(a.x,a.y,2,2);
+    p.forEach(b=>{
+      let d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<120){
+        ctx.strokeStyle="rgba(255,0,47,.25)";
+        ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+      }
     });
-
-    // ==============================
-    // ANIMACAO DO HOLOGRAMA
-    // ==============================
-
-    const canvas = document.getElementById('holograma');
-    const ctx = canvas.getContext('2d');
-    let dots = [];
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    class Dot {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.speedX = (Math.random() - 0.5) * 0.8;
-            this.speedY = (Math.random() - 0.5) * 0.8;
-        }
-        draw() {
-            ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-            ctx.fill();
-        }
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-            if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-        }
-    }
-
-    function init() {
-        dots = [];
-        for (let i = 0; i < 60; i++) dots.push(new Dot());
-    }
-
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        dots.forEach((dot, index) => {
-            dot.update();
-            dot.draw();
-            for (let j = index; j < dots.length; j++) {
-                let dx = dot.x - dots[j].x;
-                let dy = dot.y - dots[j].y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < 120) {
-                    ctx.strokeStyle = `rgba(255, 0, 0, ${1 - dist/120})`;
-                    ctx.lineWidth = 0.8;
-                    ctx.beginPath();
-                    ctx.moveTo(dot.x, dot.y);
-                    ctx.lineTo(dots[j].x, dots[j].y);
-                    ctx.stroke();
-                }
-            }
-        });
-        requestAnimationFrame(animate);
-    }
-
-    init();
-    animate();
-    window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; init(); }
+  });
+  requestAnimationFrame(anim);
+})();
 </script>
 
 </body>
