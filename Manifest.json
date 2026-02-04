@@ -2,15 +2,11 @@
   "name": "Spotify",
   "short_name": "Spotify",
   "description": "Spotify - Music and Podcasts",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#1DB954",
-  "orientation": "portrait-primary",
-  "lang": "pt-BR",
-  "dir": "ltr",
-  "categories": ["music", "entertainment"],
+  "orientation": "portrait",
   "icons": [
     {
       "src": "icons/icon-192.png",
